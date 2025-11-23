@@ -63,10 +63,8 @@ function Root() {
 
   return (
     <>
-      <div>
-        <button onClick={() => setShowMap(true)}>Show map</button>
-        <button onClick={() => setShowMap(false)}>Hide map</button>
-      </div>
+      <button onClick={() => setShowMap(shown => !shown)}>Toggle map</button>
+
       {showMap && (
         <Map viewState={INITIAL_VIEW_STATE} mapStyle={MAP_STYLE}>
           {selected && (
