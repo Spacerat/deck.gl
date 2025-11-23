@@ -25,6 +25,7 @@ const INITIAL_VIEW_STATE = {
 };
 
 const MAP_STYLE = 'mapbox://styles/mapbox/light-v9';
+
 function DeckGLOverlay(props) {
   const overlay = useControl(() => new DeckOverlay(props));
   overlay.setProps(props);
@@ -47,8 +48,8 @@ function Root() {
       // Interactive props
       pickable: true,
       autoHighlight: true,
-      onClick: info => setSelected(info.object)
-      // beforeId: 'waterway-label' // In interleaved mode render the layer under map labels
+      onClick: info => setSelected(info.object),
+      beforeId: 'waterway-label' // In interleaved mode render the layer under map labels
     }),
     new ArcLayer({
       id: 'arcs',
@@ -63,26 +64,38 @@ function Root() {
     })
   ];
 
+  const [showMap, setShowMap] = useState(true);
+
   return (
-    <Map
-      initialViewState={INITIAL_VIEW_STATE}
-      mapStyle={MAP_STYLE}
-      mapboxAccessToken={MAPBOX_TOKEN}
-    >
-      {selected && (
-        <Popup
-          key={selected.properties.name}
-          anchor="bottom"
-          style={{zIndex: 10}} /* position above deck.gl canvas */
-          longitude={selected.geometry.coordinates[0]}
-          latitude={selected.geometry.coordinates[1]}
+    <>
+      <div>
+        <button onClick={() => setShowMap(true)}>Show map</button>
+        <button onClick={() => setShowMap(false)}>Hide map</button>
+      </div>
+      {showMap && (
+        <Map
+          initialViewState={INITIAL_VIEW_STATE}
+          mapStyle={MAP_STYLE}
+          mapboxAccessToken={MAPBOX_TOKEN}
+          reuseMaps
+          id="map"
         >
-          {selected.properties.name} ({selected.properties.abbrev})
-        </Popup>
+          {selected && (
+            <Popup
+              key={selected.properties.name}
+              anchor="bottom"
+              style={{zIndex: 10}} /* position above deck.gl canvas */
+              longitude={selected.geometry.coordinates[0]}
+              latitude={selected.geometry.coordinates[1]}
+            >
+              {selected.properties.name} ({selected.properties.abbrev})
+            </Popup>
+          )}
+          <DeckGLOverlay layers={layers} interleaved />
+          <NavigationControl position="top-left" />
+        </Map>
       )}
-      <DeckGLOverlay layers={layers} /* interleaved*/ />
-      <NavigationControl position="top-left" />
-    </Map>
+    </>
   );
 }
 

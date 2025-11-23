@@ -30,6 +30,7 @@ function DeckGLOverlay(props) {
 
 function Root() {
   const [selected, setSelected] = useState(null);
+  const [showMap, setShowMap] = useState(true);
 
   const layers = [
     new GeoJsonLayer({
@@ -61,21 +62,29 @@ function Root() {
   ];
 
   return (
-    <Map initialViewState={INITIAL_VIEW_STATE} mapStyle={MAP_STYLE}>
-      {selected && (
-        <Popup
-          key={selected.properties.name}
-          anchor="bottom"
-          style={{zIndex: 10}} /* position above deck.gl canvas */
-          longitude={selected.geometry.coordinates[0]}
-          latitude={selected.geometry.coordinates[1]}
-        >
-          {selected.properties.name} ({selected.properties.abbrev})
-        </Popup>
+    <>
+      <div>
+        <button onClick={() => setShowMap(true)}>Show map</button>
+        <button onClick={() => setShowMap(false)}>Hide map</button>
+      </div>
+      {showMap && (
+        <Map viewState={INITIAL_VIEW_STATE} mapStyle={MAP_STYLE}>
+          {selected && (
+            <Popup
+              key={selected.properties.name}
+              anchor="bottom"
+              style={{zIndex: 10}} /* position above deck.gl canvas */
+              longitude={selected.geometry.coordinates[0]}
+              latitude={selected.geometry.coordinates[1]}
+            >
+              {selected.properties.name} ({selected.properties.abbrev})
+            </Popup>
+          )}
+          <DeckGLOverlay layers={layers} interleaved />
+          <NavigationControl position="top-left" />
+        </Map>
       )}
-      <DeckGLOverlay layers={layers} /* interleaved*/ />
-      <NavigationControl position="top-left" />
-    </Map>
+    </>
   );
 }
 
